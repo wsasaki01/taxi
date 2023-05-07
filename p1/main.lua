@@ -2,11 +2,15 @@ function _init()
     p = {
         x = 40,
         y = 40,
+        w = 8,
+        h = 8,
         dir = 0.75, -- direction
 
         vel = 0, -- velocity
         acc = 0.45, -- acceleration
-        fr = 0.8 -- friction
+        fr = 0.8, -- friction
+
+        score = 0
     }
 
     c = {
@@ -19,6 +23,11 @@ function _init()
         fr = 0.85,
         dist = 0
     }
+
+    coins = {}
+    for i=1, 5 do
+        add(coins, {rnd(128), rnd(128), true})
+    end
 end
 
 function _update60()
@@ -64,14 +73,41 @@ function _update60()
     -- apply movement to camera
     c.x+=sin(c.dir)*c.vel
     c.y+=cos(c.dir)*c.vel
+
+    check_collision()
 end
 
 function _draw()
-    cls(0)
-    map(0, 0, 0, 0)
-
     camera(c.x-64, c.y-64)
 
+    cls(0)
+    map(0, 0, 0, 0)
     pset(p.x, p.y, 12)
+    spr(4, p.x-3, p.y-3)
     pset(p.x+3*sin(p.dir), p.y+3*cos(p.dir), 7)
+
+    draw_coins()
+
+    print(p.score, c.x-64, c.y-64, 7)
+end
+
+function draw_coins()
+    for coin in all(coins) do
+        if coin[3] then
+            spr(3, coin[1]-4, coin[2]-4)
+        end
+    end
+end
+
+function check_collision()
+    for coin in all(coins) do
+        -- if within hitbox, remove coin and add score
+        if p.x-0.5*(p.w) < coin[1] and
+        p.x+0.5*(p.w) > coin[1] and
+        p.y-0.5*(p.h) < coin[2] and
+        p.y+0.5*(p.h) > coin[2] then
+            coin[3] = false
+            p.score += 1
+        end
+    end
 end
