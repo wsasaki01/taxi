@@ -1,7 +1,7 @@
 function _init()
     p = {
-        x = 40,
-        y = 40,
+        x = 64,
+        y = 64,
         w = 8,
         h = 8,
         dir = 0.75, -- direction
@@ -16,7 +16,7 @@ function _init()
     }
 
     c = {
-        x = p.x,
+        x = p.x, 
         y = p.y,
         dir = 0.75,
 
@@ -79,6 +79,7 @@ function _update60()
     c.x+=sin(c.dir)*c.vel
     c.y+=cos(c.dir)*c.vel
 
+    coin_pickup()
     check_collision()
     check_drop()
 end
@@ -100,8 +101,8 @@ function _draw()
 end
 
 function gen_coins()
-    for i=1, 20 do
-        add(coins, {rnd(128), rnd(128)})
+    for i=1, 200 do
+        add(coins, {rnd(1016), rnd(504)})
     end
 end
 
@@ -111,7 +112,7 @@ function draw_coins()
     end
 end
 
-function check_collision()
+function coin_pickup()
     for coin in all(coins) do
         -- if within hitbox, remove coin and add score
         if p.x-0.5*(p.w) < coin[1]+5 and -- add 5 to coin hitbox
@@ -121,6 +122,12 @@ function check_collision()
             p.cc += 1
             del(coins, coin)
         end
+    end
+end
+
+function check_collision()
+    if fget(mget(p.x\8, p.y\8)) == 2 then
+        p.fr = 0
     end
 end
 
