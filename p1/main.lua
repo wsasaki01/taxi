@@ -11,6 +11,7 @@ function _init()
         acc = 0.45, -- acceleration
         fr = 0.8, -- friction
 
+        cc = 0,
         score = 0
     }
 
@@ -26,9 +27,7 @@ function _init()
     }
 
     coins = {}
-    for i=1, 100 do
-        add(coins, {rnd(128), rnd(128)})
-    end
+    gen_coins()
 end
 
 function _update60()
@@ -44,7 +43,7 @@ function _update60()
     end
 
     -- boost with x
-    if btnp(5) then
+    if btnp(5) and drive then
         p.vel += 5
     end
 
@@ -76,6 +75,7 @@ function _update60()
     c.y+=cos(c.dir)*c.vel
 
     check_collision()
+    check_drop()
 end
 
 function _draw()
@@ -90,7 +90,14 @@ function _draw()
 
     draw_coins()
 
-    print(p.score, c.x-64, c.y-64, 7) -- score
+    print(p.cc, c.x-64, c.y-64, 7) -- score
+    print(p.score, 10)
+end
+
+function gen_coins()
+    for i=1, 20 do
+        add(coins, {rnd(128), rnd(128)})
+    end
 end
 
 function draw_coins()
@@ -106,8 +113,18 @@ function check_collision()
         p.x+0.5*(p.w) > coin[1]-5 and -- makes it more generous
         p.y-0.5*(p.h) < coin[2]+5 and
         p.y+0.5*(p.h) > coin[2]-5 then
-            p.score += 1
+            p.cc += 1
             del(coins, coin)
+        end
+    end
+end
+
+function check_drop()
+    if fget(mget(p.x\8, p.y\8)) == 1 then
+        p.score += 10*p.cc
+        p.cc = 0
+        if #coins == 0 then
+            gen_coins()
         end
     end
 end
