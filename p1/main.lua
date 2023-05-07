@@ -34,8 +34,13 @@ function _update60()
     drive = btn(5) or btn(2)
 
     -- change direction
-    if drive and btn(0) then p.dir-=p.turn end
-    if drive and btn(1) then p.dir+=p.turn end
+    if drive and btn(0) then
+        p.dir-=p.turn
+        p.dir+=0.0005*p.cc
+    elseif drive and btn(1) then
+        p.dir+=p.turn
+        p.dir-=0.0005*p.cc
+    end
 
     -- if driving, accelerate
     if drive then
