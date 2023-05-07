@@ -11,4 +11,6 @@ end
 
 function _draw()
     cls(3)
+
+    pset(p.x, p.y, 0)
 end
