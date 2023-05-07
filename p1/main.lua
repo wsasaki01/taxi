@@ -52,6 +52,11 @@ function _update60()
         p.vel += 5
     end
 
+    if btnp(4) and drive then
+        p.cc -= 1
+        add(coins, {c.x, c.y})
+    end
+
     -- decelerate due to friction
     if p.vel != 0 then
         p.vel *= p.fr
