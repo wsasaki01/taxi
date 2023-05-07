@@ -5,6 +5,7 @@ function _init()
         w = 8,
         h = 8,
         dir = 0.75, -- direction
+        turn = 0.015, -- turning power; increase for sharper turn
 
         vel = 0, -- velocity
         acc = 0.45, -- acceleration
@@ -25,8 +26,8 @@ function _init()
     }
 
     coins = {}
-    for i=1, 5 do
-        add(coins, {rnd(128), rnd(128), true})
+    for i=1, 100 do
+        add(coins, {rnd(128), rnd(128)})
     end
 end
 
@@ -34,8 +35,8 @@ function _update60()
     drive = btn(5) or btn(2)
 
     -- change direction
-    if drive and btn(0) then p.dir-=0.02 end
-    if drive and btn(1) then p.dir+=0.02 end
+    if drive and btn(0) then p.dir-=p.turn end
+    if drive and btn(1) then p.dir+=p.turn end
 
     -- if driving, accelerate
     if drive then
@@ -78,36 +79,35 @@ function _update60()
 end
 
 function _draw()
+    -- apply camera position
     camera(c.x-64, c.y-64)
 
     cls(0)
     map(0, 0, 0, 0)
-    pset(p.x, p.y, 12)
-    spr(4, p.x-3, p.y-3)
-    pset(p.x+3*sin(p.dir), p.y+3*cos(p.dir), 7)
+
+    spr(4, p.x-3, p.y-3) -- player sprite
+    pset(p.x+3*sin(p.dir), p.y+3*cos(p.dir), 7) -- direction indicator
 
     draw_coins()
 
-    print(p.score, c.x-64, c.y-64, 7)
+    print(p.score, c.x-64, c.y-64, 7) -- score
 end
 
 function draw_coins()
     for coin in all(coins) do
-        if coin[3] then
-            spr(3, coin[1]-4, coin[2]-4)
-        end
+        spr(3, coin[1]-4, coin[2]-4)
     end
 end
 
 function check_collision()
     for coin in all(coins) do
         -- if within hitbox, remove coin and add score
-        if p.x-0.5*(p.w) < coin[1] and
-        p.x+0.5*(p.w) > coin[1] and
-        p.y-0.5*(p.h) < coin[2] and
-        p.y+0.5*(p.h) > coin[2] then
-            coin[3] = false
+        if p.x-0.5*(p.w) < coin[1]+5 and -- add 5 to coin hitbox
+        p.x+0.5*(p.w) > coin[1]-5 and -- makes it more generous
+        p.y-0.5*(p.h) < coin[2]+5 and
+        p.y+0.5*(p.h) > coin[2]-5 then
             p.score += 1
+            del(coins, coin)
         end
     end
 end
