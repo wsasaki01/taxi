@@ -26,7 +26,7 @@ function _init()
     }
 
     coins = {}
-    for i=1, 100 do
+    for i=1, 20 do
         add(coins, {rnd(128), rnd(128)})
     end
 end
