@@ -12,7 +12,8 @@ function _init()
         fr = 0.8, -- friction
 
         cc = 0,
-        score = 0
+        score = 0,
+        timer = 2 -- boost recharge time
     }
 
     c = {
@@ -25,6 +26,8 @@ function _init()
         fr = 0.85,
         dist = 0
     }
+
+    threshold = 2 -- threshold for boosting through objects
 
     coins = {}
     gen_coins()
@@ -103,6 +106,7 @@ function _draw()
 
     print(p.cc, c.x-64, c.y-64, 7) -- score
     print(p.score, 10)
+    print(p.vel)
 end
 
 function gen_coins()
@@ -131,7 +135,9 @@ function coin_pickup()
 end
 
 function check_collision()
-    if fget(mget(p.x\8, p.y\8)) == 2 then
+    -- ignore collisions if above threshold
+    -- if not, check for collision tiles
+    if p.vel < threshold and fget(mget(p.x\8, p.y\8)) == 2 then
         p.fr = 0
     end
 end
