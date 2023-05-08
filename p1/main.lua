@@ -13,7 +13,8 @@ function _init()
 
         cc = 0,
         score = 0,
-        timer = 2 -- boost recharge time
+        limit = 2, -- boost recharge time
+        charge = 2
     }
 
     c = {
@@ -47,12 +48,12 @@ function _update60()
 
     -- if driving, accelerate
     if drive then
-        p.vel += p.acc
+        p.vel += p.acc-0.005*p.cc
     end
 
     -- boost with x
     if btnp(5) and drive then
-        p.vel += 5
+        p.vel += 5-0.05*p.cc
     end
 
     if btnp(4) and drive then
