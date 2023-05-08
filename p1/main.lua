@@ -26,6 +26,8 @@ function _init()
         dist = 0
     }
 
+    threshold = 2
+
     coins = {}
     gen_coins()
 end
@@ -103,6 +105,7 @@ function _draw()
 
     print(p.cc, c.x-64, c.y-64, 7) -- score
     print(p.score, 10)
+    print(p.vel)
 end
 
 function gen_coins()
@@ -131,7 +134,7 @@ function coin_pickup()
 end
 
 function check_collision()
-    if fget(mget(p.x\8, p.y\8)) == 2 then
+    if p.vel < threshold and fget(mget(p.x\8, p.y\8)) == 2 then
         p.fr = 0
     end
 end
