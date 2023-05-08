@@ -143,15 +143,18 @@ function _draw()
 
     draw_coins()
 
+    -- UI
+    camera(0, 0)
+    
+    count = 0
     for dropoff in all(dropoffs) do
-        print(dropoff.dist, dropoff.x, dropoff.y)
-        if dropoff.dist < 50 then
-            line(p.x, p.y, dropoff.x, dropoff.y)
+        if dropoff.dist < 300 then
+            count += 1
+            ind = raycast(dropoff)
+            spr(2, ind[1], ind[2])
         end
     end
 
-    -- UI
-    camera(0, 0)
     rectfill(0, 120, 20, 128, 6)
     rectfill(0, 120, 0+(p.charge/p.limit*20), 128, 7)
     if p.boost then
@@ -162,6 +165,7 @@ function _draw()
     print(p.score, 10)
     print(p.x)
     print(p.y)
+    print(count)
 
     -- apply camera position
     camera(c.x-64, c.y-64)
@@ -206,4 +210,72 @@ function check_drop()
             gen_coins()
         end
     end
+end
+
+function raycast(dest)
+    local angle = dest.dir*-1+0.25
+
+    local vx = cos(angle)
+    local vy = sin(angle)
+    
+    --if dist. to next pixel is positive, set increment to positive
+    if vx >= 0 then
+        stepx = 1
+    else
+        stepx = -1
+    end
+
+    --repeat for y
+    if vy >= 0 then
+        stepy = 1
+    else 
+        stepy = -1
+    end
+
+    --copy the player coords to use in calculations
+    local x = p.x
+    local y = p.y
+
+    --store the most recent visited pixel
+    local current = {x, y}
+
+    while within_bounds(current[1], current[2]) do
+        --calculate the next horizontal and vertical coords
+        local next_vert = current[1]+1
+        local next_hori = current[2]+1
+
+        --calculate the distances to the next horizontal and vertical pixels
+        local tmax_x = (next_vert - x) / vx
+        local tmax_y = (next_hori - y) / vy
+
+        --if moving horizontally is next...
+        if tmax_x < tmax_y then
+            --move to the next pixel
+            local temp = current[1]
+            current[1] = temp + stepx
+
+            --change the horizontal position
+            y += sin(angle)/cos(angle) * (next_vert - x)
+
+            --set the current x to the pixel we've moved to
+            x = next_vert
+        --if moving vertically is next...
+        else
+            --move to the next pixel
+            local temp = current[2]
+            current[2] = temp + stepy
+
+            --change the vertical position
+            x += (next_hori - y) / sin(angle)/cos(angle) 
+
+            --set the current y to the pixel we've moved to
+            y = next_hori
+        end
+    end
+
+    return current
+end
+
+function within_bounds(x, y)
+    return (0 < x) and (x < 128) and (0 < y) and (y < 128)
 end
