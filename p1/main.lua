@@ -17,7 +17,7 @@ function _init()
     }
 
     c = {
-        x = p.x, 
+        x = p.x,
         y = p.y,
         dir = 0.75,
 
@@ -27,11 +27,7 @@ function _init()
         dist = 0
     }
 
-<<<<<<< HEAD
-    threshold = 2 -- threshold for boosting through objects
-=======
     threshold = 2
->>>>>>> 3e8cf1103229251c883544826579ba4171d4a5bb
 
     coins = {}
     gen_coins()
@@ -139,11 +135,6 @@ function coin_pickup()
 end
 
 function check_collision()
-<<<<<<< HEAD
-    -- ignore collisions if above threshold
-    -- if not, check for collision tiles
-=======
->>>>>>> 3e8cf1103229251c883544826579ba4171d4a5bb
     if p.vel < threshold and fget(mget(p.x\8, p.y\8)) == 2 then
         p.fr = 0
     end
