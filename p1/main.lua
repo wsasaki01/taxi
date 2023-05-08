@@ -13,7 +13,10 @@ function _init()
 
         cc = 0,
         score = 0,
-        timer = 2 -- boost recharge time
+        limit = 1, -- boost recharge time, in sec
+        charge = 0,
+        time = 0,
+        boost = true
     }
 
     c = {
@@ -47,14 +50,27 @@ function _update60()
 
     -- if driving, accelerate
     if drive then
-        p.vel += p.acc
+        p.vel += p.acc-0.001*p.cc
     end
 
     -- boost with x
-    if btnp(5) and drive then
-        p.vel += 5
+    if btnp(5) and drive and p.boost then
+        p.vel += 5-0.05*p.cc
+        p.boost = false
+        p.charge = 0
+        p.time = t()
     end
 
+    -- charge up boost
+    if not p.boost then
+        if p.charge < p.limit then
+            p.charge = t() - p.time
+        else
+            p.boost = true
+        end
+    end
+
+    -- drop coins with o
     if btnp(4) and drive then
         p.cc -= 1
         add(coins, {c.x, c.y})
@@ -104,9 +120,21 @@ function _draw()
 
     draw_coins()
 
-    print(p.cc, c.x-64, c.y-64, 7) -- score
+    -- UI
+    camera(0, 0)
+    rectfill(0, 120, 20, 128, 6)
+    rectfill(0, 120, 0+(p.charge/p.limit*20), 128, 7)
+    if p.boost then
+        rectfill(0, 120, 20, 128, 10)
+    end
+
+    print(p.cc, 7) -- score
     print(p.score, 10)
     print(p.vel)
+    print(p.charge)
+
+    -- apply camera position
+    camera(c.x-64, c.y-64)
 end
 
 function gen_coins()
