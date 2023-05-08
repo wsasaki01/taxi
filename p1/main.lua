@@ -1,4 +1,15 @@
 function _init()
+    dropoffs = {}
+
+    -- get list of dropoff locations
+    for mx=1, 1016 do
+        for my=1, 504 do
+            if fget(mget(mx, my)) == 1 then
+                add(dropoffs, {x=mx*8+4, y=my*8+4})
+            end
+        end
+    end
+
     p = {
         x = 64,
         y = 64,
@@ -37,6 +48,18 @@ function _init()
 end
 
 function _update60()
+    for dropoff in all(dropoffs) do
+        dropoff.xd = abs(dropoff.x - p.x)
+        dropoff.yd = abs(dropoff.y - p.y)
+        if dropoff.xd > 100 or dropoff.yd > 100 then
+            dropoff.dist = 1000
+        else
+            dropoff.dist = flr(sqrt((dropoff.x-p.x)^2 + (dropoff.y-p.y)^2)) -- dist
+        end
+        
+        dropoff.dir = atan2(p.y-dropoff.y, p.x-dropoff.x) -- angle
+    end
+
     drive = btn(5) or btn(2)
 
     -- change direction
@@ -120,6 +143,13 @@ function _draw()
 
     draw_coins()
 
+    for dropoff in all(dropoffs) do
+        print(dropoff.dist, dropoff.x, dropoff.y)
+        if dropoff.dist < 50 then
+            line(p.x, p.y, dropoff.x, dropoff.y)
+        end
+    end
+
     -- UI
     camera(0, 0)
     rectfill(0, 120, 20, 128, 6)
@@ -128,10 +158,10 @@ function _draw()
         rectfill(0, 120, 20, 128, 10)
     end
 
-    print(p.cc, 7) -- score
+    print(p.cc, 0, 0, 7) -- score
     print(p.score, 10)
-    print(p.vel)
-    print(p.charge)
+    print(p.x)
+    print(p.y)
 
     -- apply camera position
     camera(c.x-64, c.y-64)
