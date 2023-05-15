@@ -1,4 +1,15 @@
 function _init()
+    dropoffs = {}
+
+    -- get list of dropoff locations
+    for mx=1, 1016 do
+        for my=1, 504 do
+            if fget(mget(mx, my)) == 1 then
+                add(dropoffs, {x=mx*8+4, y=my*8+4})
+            end
+        end
+    end
+
     p = {
         x = 64,
         y = 64,
@@ -37,6 +48,18 @@ function _init()
 end
 
 function _update60()
+    for dropoff in all(dropoffs) do
+        dropoff.xd = abs(dropoff.x - p.x)
+        dropoff.yd = abs(dropoff.y - p.y)
+        if dropoff.xd > 100 or dropoff.yd > 100 then
+            dropoff.dist = 1000
+        else
+            dropoff.dist = flr(sqrt((dropoff.x-p.x)^2 + (dropoff.y-p.y)^2)) -- dist
+        end
+        
+        dropoff.dir = atan2(p.y-dropoff.y, p.x-dropoff.x) -- angle
+    end
+
     drive = btn(5) or btn(2)
 
     -- change direction
@@ -120,18 +143,31 @@ function _draw()
 
     draw_coins()
 
+    count = 0
+    for dropoff in all(dropoffs) do
+        print(dropoff.dist, dropoff.x, dropoff.y, 7)
+        if 60 < dropoff.dist and dropoff.dist < 400 then
+            count += 1
+            ind = raycast(p.x, p.y, dropoff.x, dropoff.y, c.x-64, c.y-64)
+            circfill(ind[1], ind[2], sqrt(dropoff.dist), 1)
+        end
+    end
+
     -- UI
     camera(0, 0)
+
     rectfill(0, 120, 20, 128, 6)
     rectfill(0, 120, 0+(p.charge/p.limit*20), 128, 7)
     if p.boost then
         rectfill(0, 120, 20, 128, 10)
     end
 
-    print(p.cc, 7) -- score
+    print("", 0, 0, 7)
+    print(p.cc) -- score
     print(p.score, 10)
-    print(p.vel)
-    print(p.charge)
+    print("")
+    print(p.x)
+    print(p.y)
 
     -- apply camera position
     camera(c.x-64, c.y-64)
@@ -176,4 +212,36 @@ function check_drop()
             gen_coins()
         end
     end
+end
+
+function raycast(x0, y0, x1, y1, cx, cy)
+    -- raycast from point 0 to point 1, within camera bounds
+    local a=atan2(x1-x0,y1-y0)
+    local xi=cos(a)>=0 and 1 or -1
+    local yi=sin(a)>=0 and 1 or -1
+    local x=x0
+    local y=y0
+    local p={x0, y0}
+
+    while cx<=p[1] and p[1]<=cx+128 and cy<=p[2] and p[2]<=cy+128 do
+        local nv=p[1]+1
+        local nh=p[2]+1
+        local xd=(nv-x)/cos(a)
+        local yd=(nh-y)/sin(a)
+        if xd<yd then
+            p[1]+=xi
+            y+=(sin(a)/cos(a))*(nv-x)
+            x=nv
+        else
+            p[2]+=yi
+            x+=(nh-y)/(sin(a)/cos(a))
+            y=nh
+        end
+    end
+
+    return p
+end
+
+function within_bounds(x, y)
+    return (0 < x) and (x < 128) and (0 < y) and (y < 128)
 end
